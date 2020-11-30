@@ -427,6 +427,11 @@ definitions:
           jcr:name: Glossary list
           jcr:primaryType: hipposys:resourcebundle
         jcr:primaryType: hipposys:resourcebundles
+      /website:graphicblock:
+        /en:
+          jcr:name: Graphic block
+          jcr:primaryType: hipposys:resourcebundle
+        jcr:primaryType: hipposys:resourcebundles
       /website:group:
         /en:
           jcr:name: Group
@@ -735,6 +740,11 @@ definitions:
       /website:socialmediaimages:
         /en:
           jcr:name: Social media images
+          jcr:primaryType: hipposys:resourcebundle
+        jcr:primaryType: hipposys:resourcebundles
+      /website:socialmedialink:
+        /en:
+          jcr:name: Social Media
           jcr:primaryType: hipposys:resourcebundle
         jcr:primaryType: hipposys:resourcebundles
       /website:statistics:
