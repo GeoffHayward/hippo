@@ -49,14 +49,15 @@
     classpath*:org/hippoecm/hst/demo2/beans/**/*.class' to specify two
     or more different location filters.
   -->
-  <context-param>
-    <param-name>hst-beans-annotated-classes</param-name>
-    <param-value>classpath*:uk/nhs/digital/**/beans/*.class
-      ,classpath*:org/onehippo/**/*.class
-      ,classpath*:com/onehippo/**/*.class
-      ,classpath*:org/onehippo/forge/**/*.class
-    </param-value>
-  </context-param>
+    <context-param>
+        <param-name>hst-beans-annotated-classes</param-name>
+        <param-value>classpath*:uk/nhs/digital/**/beans/*.class
+            ,classpath*:org/onehippo/**/*.class
+            ,classpath*:com/onehippo/**/*.class
+            ,classpath*:org/onehippo/forge/**/*.class
+            ,classpath*:org/bloomreach/forge/**/*.class
+        </param-value>
+    </context-param>
 
   <context-param>
       <param-name>contextInitializerClasses</param-name>

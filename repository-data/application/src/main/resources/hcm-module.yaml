@@ -1,6 +1,8 @@
 ---
 group:
-  after: hippo-cms
+  after:
+  - hippo-cms
+  - hippo-forge
   name: publicationsystem
 module:
   name: website-repository-data-application
