@@ -10,7 +10,8 @@
 
     <div id="chart-${section.uniqueId}-block">
         <figure data-chart="highchart">
-            <div id="chart-${section.uniqueId}" style="width:100%; height:${size}px;">
+            <div id="chart-${section.uniqueId}"
+                 style="width:100%; height:${size}px;">
                 <span class="css-loader"></span>
             </div>
             <span class="attachment">
@@ -31,12 +32,13 @@
             </span>
         </figure>
     </div>
-    <script type="text/javascript" data-chartsource="highchart" data-charttype="chart" data-sectionid="${section.uniqueId}">
+    <script type="text/javascript" data-chartsource="highchart"
+            data-charttype="chart" data-sectionid="${section.uniqueId}">
         <#if (chartData.data)??>
         var chartData = "${chartData.data}";
         var results = Papa.parse(atob(chartData));
-        if(!results.errors.length) {
-        </#if>
+        if (!results.errors.length) {
+            </#if>
             window.highchartData${section.uniqueId?remove_beginning("-")} = {
                 chart: {
                     type: '${section.type?lower_case}',
@@ -64,8 +66,11 @@
                     text: "${section.title}"
                 },
                 series: [<#list section.seriesItem as item>{
-                    type: '${item.type}',
-                    name: '${item.name}'
+                    <#assign  type = '${item.type}' />
+                    <#if type != "suppress">
+                        type: '${item.type}',
+                        name: '${item.name}'
+                    </#if>
                 }<#if item?is_last><#else>, </#if></#list>],
                 data: {
                     <#if (chartData.data)??>
@@ -74,10 +79,29 @@
                     enablePolling: false,
                     csvURL: "${section.url}",
                     </#if>
-                    firstRowAsNames: true
+                    firstRowAsNames: true,
+                    complete: function (o) {
+                        let finalSeries = []
+                        let currentSeries = o.series
+                        let removeValFromIndex = []
+                        for (let i = 0; i < currentSeries.length; i++) {
+                            let tempOne = currentSeries[i]
+                            <#list section.seriesItem as item>
+                                if("${item.name}" == currentSeries[i].name
+                                    && '${item.type}' == "suppress") {
+                                    const index = currentSeries.indexOf(tempOne);
+                                    if (index > -1) {
+                                        removeValFromIndex[removeValFromIndex.length] = index;
+                                    }
+                                }
+                            </#list>
+                        }
+                        for (let i = removeValFromIndex.length -1; i >= 0; i--)
+                            o.series.splice(removeValFromIndex[i],1);
+                    }
                 }
             };
-        <#if (chartData.data)??>
+            <#if (chartData.data)??>
         } else {
             document.getElementById('chart-${section.uniqueId}-block').innerHTML = "<p><strong>The dynamic chart is unavailable at this time. Please try again soon.</strong></p>"
         }
