@@ -9,7 +9,7 @@ import org.hippoecm.frontend.plugin.IPluginContext;
 import org.hippoecm.frontend.plugin.config.IPluginConfig;
 import org.hippoecm.frontend.plugins.jquery.upload.FileUploadViolationException;
 import org.hippoecm.frontend.plugins.jquery.upload.single.FileUploadPanel;
-import org.hippoecm.frontend.plugins.yui.upload.processor.FileUploadPreProcessorService;
+import org.hippoecm.frontend.plugins.yui.upload.processor.DefaultFileUploadPreProcessorService;
 import org.hippoecm.frontend.plugins.yui.upload.validation.DefaultUploadValidationService;
 import org.hippoecm.frontend.plugins.yui.upload.validation.FileUploadValidationService;
 import org.hippoecm.frontend.service.IEditor;
@@ -22,6 +22,7 @@ import uk.nhs.digital.externalstorage.s3.PooledS3Connector;
 import uk.nhs.digital.externalstorage.s3.S3ObjectMetadata;
 
 import java.util.Calendar;
+
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
@@ -40,17 +41,13 @@ public class ResourceUploadPlugin extends RenderPlugin {
     public ResourceUploadPlugin(IPluginContext context, IPluginConfig config) {
         super(context, config);
         mode = IEditor.Mode.fromString(config.getString("mode"), IEditor.Mode.EDIT);
-        add(createFileUploadPanel(config, context));
+        add(createFileUploadPanel());
         add(new EventStoppingBehavior("onclick"));
     }
 
-    private FileUploadPanel createFileUploadPanel(IPluginConfig pluginConfig, IPluginContext pluginContext) {
+    private FileUploadPanel createFileUploadPanel() {
 
-        String serviceId = pluginConfig.getString(FileUploadPreProcessorService.PRE_PROCESSOR_ID, FileUploadPreProcessorService.DEFAULT_ID);
-        FileUploadPreProcessorService preProcessorService = pluginContext.getService(serviceId,
-            FileUploadPreProcessorService.class);
-
-        final FileUploadPanel panel = new FileUploadPanel("fileUpload", getPluginConfig(), getValidationService(), preProcessorService) {
+        final FileUploadPanel panel = new FileUploadPanel("fileUpload", getPluginConfig(), getValidationService(), new DefaultFileUploadPreProcessorService()) {
             @Override
             public void onFileUpload(final FileUpload fileUpload) throws FileUploadViolationException {
                 handleUpload(fileUpload);
