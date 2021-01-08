@@ -3,6 +3,7 @@
 <#-- @ftlvariable name="section" type="uk.nhs.digital.website.beans.DynamicChartSection" -->
 
 <#macro dynamicChartSection section size>
+    <@hst.setBundle basename="publicationsystem.headers"/>
     <@fmt.message key="headers.download-chart-data" var="downloadDataFileHeader" />
     <#local linkText>${downloadDataFileHeader} ${section.title}</#local>
     <#local getData="uk.nhs.digital.freemarker.highcharts.RemoteChartDataFromUrl"?new() />
@@ -65,13 +66,6 @@
                 title: {
                     text: "${section.title}"
                 },
-                series: [<#list section.seriesItem as item>{
-                    <#assign  type = '${item.type}' />
-                    <#if type != "suppress">
-                        type: '${item.type}',
-                        name: '${item.name}'
-                    </#if>
-                }<#if item?is_last><#else>, </#if></#list>],
                 data: {
                     <#if (chartData.data)??>
                     csv: atob(chartData),
@@ -84,20 +78,35 @@
                         let finalSeries = []
                         let currentSeries = o.series
                         let removeValFromIndex = []
+                        let seriesObj = {};
+                        let seriesValue = [];
+                        let seriesCount = 0
                         for (let i = 0; i < currentSeries.length; i++) {
                             let tempOne = currentSeries[i]
+                            const index = currentSeries.indexOf(tempOne);
                             <#list section.seriesItem as item>
-                                if("${item.name}" == currentSeries[i].name
+                            if ("${item.name}" == currentSeries[i].name
                                     && '${item.type}' == "suppress") {
-                                    const index = currentSeries.indexOf(tempOne);
-                                    if (index > -1) {
-                                        removeValFromIndex[removeValFromIndex.length] = index;
-                                    }
+                                if (index > -1) {
+                                    removeValFromIndex[removeValFromIndex.length] = index;
                                 }
+                            } else if ("${item.name}" == currentSeries[i].name) {
+                                seriesValue[seriesCount] = ['${item.type}', tempOne];
+                                seriesObj["${item.name}"] = seriesValue[seriesCount];
+                                removeValFromIndex[removeValFromIndex.length] = index;
+                                seriesCount++
+                            }
                             </#list>
                         }
-                        for (let i = removeValFromIndex.length -1; i >= 0; i--)
-                            o.series.splice(removeValFromIndex[i],1);
+                        for (let i = removeValFromIndex.length - 1; i >= 0; i--)
+                            o.series.splice(removeValFromIndex[i], 1);
+                        for (let key in seriesObj) {
+                            o.series.push({
+                                type: seriesObj[key][0],
+                                name: key,
+                                data: seriesObj[key][1].data
+                            })
+                        }
                     }
                 }
             };
