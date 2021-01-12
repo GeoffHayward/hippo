@@ -57,6 +57,18 @@ definitions:
           hst:label: Banner
           hst:xtype: hst.nomarkup
           jcr:primaryType: hst:containercomponent
+        /footer-col-1:
+          hst:xtype: hst.nomarkup
+          jcr:primaryType: hst:containercomponent
+        /footer-col-2:
+          hst:xtype: hst.nomarkup
+          jcr:primaryType: hst:containercomponent
+        /footer-col-3:
+          hst:xtype: hst.nomarkup
+          jcr:primaryType: hst:containercomponent
+        /footer-col-4:
+          hst:xtype: hst.nomarkup
+          jcr:primaryType: hst:containercomponent
         /main:
           hst:xtype: hst.nomarkup
           jcr:primaryType: hst:containercomponent

@@ -10,6 +10,8 @@
         <@globalHeader true/>
 
         <@hst.include ref= "main"/>
+
+        <@hst.include ref= "footer"/>
     </div>
 </body>
 </html>
