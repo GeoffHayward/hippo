@@ -1,0 +1,34 @@
+name: Deployment Command
+
+on:
+  repository_dispatch:
+    types:
+      - deploy-command
+
+jobs:
+  build:
+    name: Build Commit
+    runs-on: ubuntu-latest
+    env:
+      PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
+      BRANCH: ${{ github.event.client_payload.slash_command.args.named.branch }}
+      TARGET: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}
+      COMMENT: ${{ github.event.client_payload.slash_command.args.named.comment }}
+
+    steps:
+
+      # For debugging
+      - name: Print PR/Context info
+        run: |
+          echo $PAYLOAD_CONTEXT
+          echo "BRANCH: $BRANCH"
+          echo "Target: $TARGET"
+          echo "Comment: $COMMENT"
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ env.BRANCH }}
+
+      - name: check
+        run: git log -1
