@@ -3,9 +3,12 @@ package uk.nhs.digital.apispecs.commonmark;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.removeStart;
 import static org.apache.commons.lang3.StringUtils.removeEnd;
+import static uk.nhs.digital.apispecs.commonmark.TopHeadingLevelFinder.within;
 
 import org.commonmark.Extension;
 import org.commonmark.ext.gfm.tables.TablesExtension;
+import org.commonmark.node.AbstractVisitor;
+import org.commonmark.node.Heading;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -15,6 +18,8 @@ import java.util.Optional;
 
 public class CommonmarkMarkdownConverter {
 
+    private static final String NO_ID_PREFIX = "";
+    private static final int NO_CHANGE = 0;
 
     /**
      * <p>
@@ -41,7 +46,11 @@ public class CommonmarkMarkdownConverter {
      * @return Rendered HTML.
      */
     public String toHtml(final String markdown) {
-        return toHtml(markdown, "");
+        return toHtml(markdown, NO_ID_PREFIX);
+    }
+
+    public String toHtml(final String markdown, int topHeadingLevel) {
+        return toHtml(markdown, NO_ID_PREFIX, topHeadingLevel);
     }
 
     /**
@@ -69,13 +78,17 @@ public class CommonmarkMarkdownConverter {
      * @param markdown Markdown to render as HTML.
      */
     public String toHtml(final String markdown, final String headingIpPrefix) {
+        return toHtml(markdown, headingIpPrefix, NO_CHANGE);
+    }
+
+    private String toHtml(final String markdown, final String headingIpPrefix, int topHeadingLevel) {
         return Optional.ofNullable(markdown)
-            .map(md -> renderMarkdownToHtml(md, headingIpPrefix))
+            .map(md -> renderMarkdownToHtml(md, headingIpPrefix, topHeadingLevel))
             .map(this::trimSurroundingParagraphsTags)
             .orElse("");
     }
 
-    private String renderMarkdownToHtml(final String md, final String headingIpPrefix) {
+    private String renderMarkdownToHtml(final String markdown, final String headingIpPrefix, int topHeadingLevel) {
 
         final List<Extension> extensions = singletonList(TablesExtension.create());
 
@@ -88,11 +101,39 @@ public class CommonmarkMarkdownConverter {
             .extensions(extensions)
             .build();
 
-        final Node document = parser.parse(md);
+        final Node document = parser.parse(markdown);
+
+        shiftHeadingsLevels(document, topHeadingLevel);
 
         return renderer.render(document);
     }
 
+    private void shiftHeadingsLevels(final Node document, final int topHeadingLevel) {
+
+        if (topHeadingLevel != NO_CHANGE) {
+
+            int offset = findHeadingsLevelsOffset(document, topHeadingLevel);
+
+            final AbstractVisitor headingVisitor = new AbstractVisitor() {
+
+                @Override public void visit(final Heading heading) {
+
+                    heading.setLevel(heading.getLevel() + offset);
+
+                    visitChildren(heading);
+                }
+            };
+
+            document.accept(headingVisitor);
+        }
+    }
+
+    private int findHeadingsLevelsOffset(final Node document, final int topHeadingLevel) {
+
+        int topHeadingLevelFound = within(document).findTopHeadingLevel();
+
+        return topHeadingLevel - topHeadingLevelFound;
+    }
 
     /**
      * See comments against {@linkplain io.swagger.codegen.v3.utils.Markdown#unwrapped(String)}

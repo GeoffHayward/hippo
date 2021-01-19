@@ -1,14 +1,25 @@
 package uk.nhs.digital.apispecs;
 
+import static com.google.common.primitives.Ints.asList;
+import static java.text.MessageFormat.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.MockitoAnnotations.initMocks;
+import static uk.nhs.digital.apispecs.CommonmarkMarkdownConverterTest.Levels.levels;
 import static uk.nhs.digital.test.util.FileUtils.contentOfFileFromClasspath;
 
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import uk.nhs.digital.apispecs.commonmark.CommonmarkMarkdownConverter;
 
+import java.util.List;
+import java.util.stream.Stream;
+
+@RunWith(DataProviderRunner.class)
 public class CommonmarkMarkdownConverterTest {
 
     private CommonmarkMarkdownConverter commonmarkMarkdownConverter;
@@ -94,9 +105,78 @@ public class CommonmarkMarkdownConverterTest {
         );
     }
 
+    @UseDataProvider("headingsLevels")
+    @Test
+    public void rendersHeadings_withHierarchyLevelsAdjustedViaParameter(final int topHeadingLevel, final Levels expectedHeadingLevels) {
+
+        // given
+        final String markdown = from("headings.md");
+        // final String expectedHtml = expectedHeadingLevels.stream()
+        //     .map(level -> format("<h{0} id=\"heading-text\">Heading text</h{0}>", level))
+        //     .collect(joining("\n"));
+
+
+        final String expectedHtml = ""
+         + format("<h{0} id=\"heading-a\">Heading A</h{0}>\n", expectedHeadingLevels.value(0))
+         + format("<h{0} id=\"heading-b\">Heading B</h{0}>\n", expectedHeadingLevels.value(1))
+         + format("<h{0} id=\"heading-c\">Heading C</h{0}>\n", expectedHeadingLevels.value(2))
+         + format("<h{0} id=\"heading-d\">Heading D</h{0}>\n", expectedHeadingLevels.value(3))
+         + format("<h{0} id=\"heading-e\">Heading E</h{0}>\n", expectedHeadingLevels.value(4))
+         + format("<h{0} id=\"heading-f\">Heading F</h{0}>",   expectedHeadingLevels.value(5));
+
+        // when
+        final String actualHtml = commonmarkMarkdownConverter.toHtml(markdown, topHeadingLevel);
+
+        // then
+        assertThat(
+            "Headings are rendered with levels hierarchy adjusted so that the highest level is " + topHeadingLevel + ".",
+            actualHtml,
+            is(expectedHtml)
+        );
+    }
+
+    @DataProvider
+    public static Object[][] headingsLevels() {
+        // @formatter:off
+        return new Object[][] {
+          // topHeadingLevel    expectedHeadingLevels
+            {1,                 levels(1,   2,   3,   4,   5,   6)},
+            {2,                 levels(2,   3,   4,   5,   6,   7)},
+            {3,                 levels(3,   4,   5,   6,   7,   8)},
+            {4,                 levels(4,   5,   6,   7,   8,   9)},
+            {5,                 levels(5,   6,   7,   8,   9,  10)},
+            {6,                 levels(6,   7,   8,   9,  10,  11)},
+        };
+        // @formatter:on
+    }
+
     private String from(final String testDataFileName) {
         return contentOfFileFromClasspath(
             "/test-data/api-specifications/CommonmarkMarkdownConverterTest/" + testDataFileName
         );
+    }
+
+    public static class Levels {
+        private List<Integer> levels;
+
+        private Levels(final int one, final int two, final int three, final int four, final int five, final int six) {
+            levels = asList(one, two, three, four, five, six);
+        }
+
+        public static Levels levels(int one, int two, int three, int four, int five, int six) {
+            return new Levels(one, two, three, four, five, six);
+        }
+
+        public Stream<Integer> stream() {
+            return levels.stream();
+        }
+
+        public int value(final int level) {
+            return levels.get(level);
+        }
+
+        @Override public String toString() {
+            return levels.toString();
+        }
     }
 }
