@@ -7,8 +7,6 @@ import static uk.nhs.digital.apispecs.commonmark.TopHeadingLevelFinder.within;
 
 import org.commonmark.Extension;
 import org.commonmark.ext.gfm.tables.TablesExtension;
-import org.commonmark.node.AbstractVisitor;
-import org.commonmark.node.Heading;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -114,17 +112,7 @@ public class CommonmarkMarkdownConverter {
 
             int offset = findHeadingsLevelsOffset(document, topHeadingLevel);
 
-            final AbstractVisitor headingVisitor = new AbstractVisitor() {
-
-                @Override public void visit(final Heading heading) {
-
-                    heading.setLevel(heading.getLevel() + offset);
-
-                    visitChildren(heading);
-                }
-            };
-
-            document.accept(headingVisitor);
+            HeadingLevelOffsetter.within(document).shiftHeadingsByOffset(offset);
         }
     }
 
