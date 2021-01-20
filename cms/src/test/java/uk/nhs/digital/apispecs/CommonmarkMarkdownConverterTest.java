@@ -109,12 +109,12 @@ public class CommonmarkMarkdownConverterTest {
         final String markdown = from("headings.md");
 
         final String expectedHtml = ""
-         + format("<h{0} id=\"heading-a\">Heading A</h{0}>\n", expectedHeadingLevels.first())
-         + format("<h{0} id=\"heading-b\">Heading B</h{0}>\n", expectedHeadingLevels.second())
-         + format("<h{0} id=\"heading-c\">Heading C</h{0}>\n", expectedHeadingLevels.third())
-         + format("<h{0} id=\"heading-d\">Heading D</h{0}>\n", expectedHeadingLevels.fourth())
-         + format("<h{0} id=\"heading-e\">Heading E</h{0}>\n", expectedHeadingLevels.fifth())
-         + format("<h{0} id=\"heading-f\">Heading F</h{0}>",   expectedHeadingLevels.sixth());
+            + format("<h{0} id=\"heading-a\">Heading A</h{0}>\n", expectedHeadingLevels.first())
+            + format("<h{0} id=\"heading-b\">Heading B</h{0}>\n", expectedHeadingLevels.second())
+            + format("<h{0} id=\"heading-c\">Heading C</h{0}>\n", expectedHeadingLevels.third())
+            + format("<h{0} id=\"heading-d\">Heading D</h{0}>\n", expectedHeadingLevels.fourth())
+            + format("<h{0} id=\"heading-e\">Heading E</h{0}>\n", expectedHeadingLevels.fifth())
+            + format("<h{0} id=\"heading-f\">Heading F</h{0}>", expectedHeadingLevels.sixth());
 
         // when
         final String actualHtml = commonmarkMarkdownConverter.toHtml(markdown, topHeadingLevel);
@@ -131,7 +131,7 @@ public class CommonmarkMarkdownConverterTest {
     public static Object[][] headingsLevels() {
         // @formatter:off
         return new Object[][] {
-          // topHeadingLevel    expectedHeadingLevels
+            // topHeadingLevel    expectedHeadingLevels
             {1,                 levels(1,   2,   3,   4,   5,   6)},
             {2,                 levels(2,   3,   4,   5,   6,   7)},
             {3,                 levels(3,   4,   5,   6,   7,   8)},
