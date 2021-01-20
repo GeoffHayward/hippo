@@ -1,17 +1,20 @@
 package uk.nhs.digital.apispecs.commonmark;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import org.commonmark.node.AbstractVisitor;
 import org.commonmark.node.Document;
 import org.commonmark.node.Heading;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(DataProviderRunner.class)
@@ -42,6 +45,7 @@ public class DocumentPreProcessorTest {
     @DataProvider
     public static Object[][] headingsLevels() {
 
+        // @formatter:off
         return new Object[][]{
             // testCase                                    expectedTopHeadingLevel     headingsLevels
             {"top level heading being the first one",      2,                          asList(2, 3)},
@@ -55,6 +59,7 @@ public class DocumentPreProcessorTest {
             {"h5 as the top heading in the hierarchy",     5,                          asList(5, 6)},
             {"h6 as the top heading in the hierarchy",     6,                          asList(6, 7)}
         };
+        // @formatter:on
     }
 
     @Test
@@ -73,6 +78,62 @@ public class DocumentPreProcessorTest {
             actualTopHeadingLevel,
             is(0)
         );
+    }
+
+    @UseDataProvider("offsets")
+    @Test
+    public void shiftHeadingsLevelsBy_addsGivenOffsetToLevelsOfAllHeadingsInDocument(
+        final String testCase,
+        final int offset,
+        final List<Integer> initialHeadingsLevels,
+        final List<Integer> expectedHeadingsLevels
+    ) {
+        // given
+        final Document documentWithHeadings = documentWithHeadingsWith(initialHeadingsLevels);
+
+        final DocumentPreProcessor preProcessor = DocumentPreProcessor.within(documentWithHeadings);
+
+        // when
+        preProcessor.shiftHeadingsLevelsBy(offset);
+
+        // then
+        final List<Integer> actualHeadingsLevels = headingsLevelsFrom(documentWithHeadings);
+
+        assertThat("For a document with " + testCase + ", the smallest of all heading levels should be returned.",
+            actualHeadingsLevels,
+            is(expectedHeadingsLevels)
+        );
+    }
+
+    private List<Integer> headingsLevelsFrom(final Document documentWithHeadings) {
+
+        final List<Heading> headings = new ArrayList<>();
+
+        documentWithHeadings.accept(new AbstractVisitor() {
+            @Override public void visit(final Heading heading) {
+                headings.add(heading);
+                visitChildren(heading);
+            }
+        });
+
+        return headings.stream().map(Heading::getLevel).collect(toList());
+    }
+
+    @DataProvider
+    public static Object[][] offsets() {
+
+        // @formatter:off
+        return new Object[][]{
+            // Note values which push level values beyond h1-h6 range. These are considered so unlikely that we
+            // don't defend against them. It's up to the caller to supply 'reasonable' values; moreover, 'illegal'
+            // headers such as <h7> or <h-2> don't break rendering and can be easily styled with CSS if needs be.
+
+            // testCase         offset initialHeadingsLevels                      expectedHeadingsLevels
+            {"no offset",        0,    asList(1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1),   asList( 1, 2, 3, 4, 5, 6, 5, 4, 3, 2,  1)},
+            {"positive offset",  2,    asList(1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1),   asList( 3, 4, 5, 6, 7, 8, 7, 6, 5, 4,  3)},
+            {"negative offset", -2,    asList(1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1),   asList(-1, 0, 1, 2, 3, 4, 3, 2, 1, 0, -1)},
+        };
+        // @formatter:on
     }
 
     private Document documentWithHeadingsWith(final List<Integer> headingsLevels) {
