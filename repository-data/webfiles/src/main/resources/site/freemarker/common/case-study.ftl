@@ -14,7 +14,8 @@
     <#assign hasTitle = document.title?has_content />
     <#assign hasContent = document.content?has_content />
     <#assign hasImage = document.image?has_content />
-    <#assign hasLink = document.external?has_content || document.internal?has_content />
+    <#assign hasLink = (document.external?has_content || document.internal?has_content) && document.label?has_content />
+
     <article class="nhsd-o-case-study nhsd-o-case-study--no-label nhsd-!t-margin-top-8 ${isRightAlignment}">
         <div class="nhsd-t-grid">
             <div class="nhsd-t-row">
@@ -40,15 +41,15 @@
                                     <p class="nhsd-t-body nhsd-!t-margin-bottom-4">${document.content}</p>
                                 </#if>
 
-                                <#if document.internal?has_content>
-                                    <@hst.link hippobean=document.internal var="link"/>
-                                    <#assign linkLabel = document.internal.title />
-                                <#elseif document.external?has_content>
-                                    <#assign link = document.external/>
-                                    <#assign linkLabel = document.label />
-                                </#if>
-
                                 <#if hasLink>
+                                    <#assign linkLabel = document.label />
+
+                                    <#if document.internal?has_content>
+                                        <@hst.link hippobean=document.internal var="link"/>
+                                    <#elseif document.external?has_content>
+                                        <#assign link = document.external/>
+                                    </#if>
+
                                     <#if document.external?has_content>
                                         <a class="nhsd-a-button nhsd-!t-margin-bottom-0" href="${link}" target="_blank" rel="external">
                                     <#else>
