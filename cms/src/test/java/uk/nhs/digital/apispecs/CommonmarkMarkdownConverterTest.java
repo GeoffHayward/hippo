@@ -1,6 +1,5 @@
 package uk.nhs.digital.apispecs;
 
-import static com.google.common.primitives.Ints.asList;
 import static java.text.MessageFormat.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -15,9 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import uk.nhs.digital.apispecs.commonmark.CommonmarkMarkdownConverter;
-
-import java.util.List;
-import java.util.stream.Stream;
 
 @RunWith(DataProviderRunner.class)
 public class CommonmarkMarkdownConverterTest {
@@ -111,18 +107,14 @@ public class CommonmarkMarkdownConverterTest {
 
         // given
         final String markdown = from("headings.md");
-        // final String expectedHtml = expectedHeadingLevels.stream()
-        //     .map(level -> format("<h{0} id=\"heading-text\">Heading text</h{0}>", level))
-        //     .collect(joining("\n"));
-
 
         final String expectedHtml = ""
-         + format("<h{0} id=\"heading-a\">Heading A</h{0}>\n", expectedHeadingLevels.value(0))
-         + format("<h{0} id=\"heading-b\">Heading B</h{0}>\n", expectedHeadingLevels.value(1))
-         + format("<h{0} id=\"heading-c\">Heading C</h{0}>\n", expectedHeadingLevels.value(2))
-         + format("<h{0} id=\"heading-d\">Heading D</h{0}>\n", expectedHeadingLevels.value(3))
-         + format("<h{0} id=\"heading-e\">Heading E</h{0}>\n", expectedHeadingLevels.value(4))
-         + format("<h{0} id=\"heading-f\">Heading F</h{0}>",   expectedHeadingLevels.value(5));
+         + format("<h{0} id=\"heading-a\">Heading A</h{0}>\n", expectedHeadingLevels.first())
+         + format("<h{0} id=\"heading-b\">Heading B</h{0}>\n", expectedHeadingLevels.second())
+         + format("<h{0} id=\"heading-c\">Heading C</h{0}>\n", expectedHeadingLevels.third())
+         + format("<h{0} id=\"heading-d\">Heading D</h{0}>\n", expectedHeadingLevels.fourth())
+         + format("<h{0} id=\"heading-e\">Heading E</h{0}>\n", expectedHeadingLevels.fifth())
+         + format("<h{0} id=\"heading-f\">Heading F</h{0}>",   expectedHeadingLevels.sixth());
 
         // when
         final String actualHtml = commonmarkMarkdownConverter.toHtml(markdown, topHeadingLevel);
@@ -157,22 +149,38 @@ public class CommonmarkMarkdownConverterTest {
     }
 
     public static class Levels {
-        private List<Integer> levels;
+        private int[] levels;
 
         private Levels(final int one, final int two, final int three, final int four, final int five, final int six) {
-            levels = asList(one, two, three, four, five, six);
+            levels = new int[]{one, two, three, four, five, six};
         }
 
         public static Levels levels(int one, int two, int three, int four, int five, int six) {
             return new Levels(one, two, three, four, five, six);
         }
 
-        public Stream<Integer> stream() {
-            return levels.stream();
+        public int first() {
+            return levels[0];
         }
 
-        public int value(final int level) {
-            return levels.get(level);
+        public int second() {
+            return levels[1];
+        }
+
+        public int third() {
+            return levels[2];
+        }
+
+        public int fourth() {
+            return levels[3];
+        }
+
+        public int fifth() {
+            return levels[4];
+        }
+
+        public int sixth() {
+            return levels[5];
         }
 
         @Override public String toString() {

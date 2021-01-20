@@ -3,7 +3,7 @@ package uk.nhs.digital.apispecs.commonmark;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.removeStart;
 import static org.apache.commons.lang3.StringUtils.removeEnd;
-import static uk.nhs.digital.apispecs.commonmark.TopHeadingLevelFinder.within;
+import static uk.nhs.digital.apispecs.commonmark.DocumentPreProcessor.within;
 
 import org.commonmark.Extension;
 import org.commonmark.ext.gfm.tables.TablesExtension;
@@ -90,7 +90,14 @@ public class CommonmarkMarkdownConverter {
 
         final List<Extension> extensions = singletonList(TablesExtension.create());
 
-        final Parser parser = Parser.builder().extensions(extensions).build();
+        final Node document = parse(markdown, extensions);
+
+        shiftHeadingsLevels(document, topHeadingLevel);
+
+        return render(document, extensions, headingIpPrefix);
+    }
+
+    private String render(final Node document, final List<Extension> extensions, final String headingIpPrefix) {
 
         final HtmlRenderer renderer = HtmlRenderer.builder()
             .attributeProviderFactory(context -> new CodeAttributeProvider())
@@ -99,11 +106,14 @@ public class CommonmarkMarkdownConverter {
             .extensions(extensions)
             .build();
 
-        final Node document = parser.parse(markdown);
-
-        shiftHeadingsLevels(document, topHeadingLevel);
-
         return renderer.render(document);
+    }
+
+    private Node parse(final String markdown, final List<Extension> extensions) {
+
+        final Parser parser = Parser.builder().extensions(extensions).build();
+
+        return parser.parse(markdown);
     }
 
     private void shiftHeadingsLevels(final Node document, final int topHeadingLevel) {
@@ -112,7 +122,7 @@ public class CommonmarkMarkdownConverter {
 
             int offset = findHeadingsLevelsOffset(document, topHeadingLevel);
 
-            HeadingLevelOffsetter.within(document).shiftHeadingsByOffset(offset);
+            within(document).shiftHeadingsLevelsBy(offset);
         }
     }
 
