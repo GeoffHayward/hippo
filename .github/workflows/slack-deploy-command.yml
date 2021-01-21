@@ -10,13 +10,13 @@ jobs:
   build:
     name: Build Commit
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     env:
       PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
       BRANCH: ${{ github.event.client_payload.data.text }}
       CHANNEL_ID: ${{ github.event.client_payload.data.channel_id }}
       RESPONSE_URL: ${{  github.event.client_payload.data.response_url }}
       USER_NAME: ${{  github.event.client_payload.data.user_name }}
-      TOKEN: ${{  github.event.client_payload.data.token }}
 
     steps:
       #
@@ -60,12 +60,6 @@ jobs:
       #
       # Checkout the branch
       #
-      - name: Slack message (checking out the branch)
-        uses: muinmomin/webhook-action@v1.0.0
-        with:
-          url: ${{ env.RESPONSE_URL }}
-          data: '{ "response_type": "in_channel", "text": "Pipeline progress...", "attachments": [{ "text" : "Checking out the repository on the given branch", "color": "#78BE20" }] }'
-
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -86,7 +80,7 @@ jobs:
         uses: muinmomin/webhook-action@v1.0.0
         with:
           url: ${{ env.RESPONSE_URL }}
-          data: '{ "response_type": "in_channel", "text": "Pipeline progress...", "attachments": [{ "text" : "Building project", "color": "#78BE20" }] }'
+          data: '{ "response_type": "in_channel", "text": "Pipeline progress...", "attachments": [{ "text" : "Building the branch (${{ env.BRANCH }})", "color": "#78BE20" }] }'
 
       - name: Setup Maven repository cache
         uses: actions/cache@v2
@@ -163,4 +157,4 @@ jobs:
         uses: muinmomin/webhook-action@v1.0.0
         with:
           url: ${{ env.RESPONSE_URL }}
-          data: '{ "response_type": "in_channel", "text": "Pipeline progress...", "attachments": [{ "text" : "RunDeck is deploying. Track progress here ${{steps.pipeline-deploy.outputs.result}}", "color": "#78BE20" }] }'
+          data: '{ "response_type": "in_channel", "text": "Pipeline progress...", "attachments": [{ "text" : "RunDeck is deploying. @${{ env.USER_NAME }} You can track progress here ${{steps.pipeline-deploy.outputs.result}}", "color": "#78BE20" }] }'
