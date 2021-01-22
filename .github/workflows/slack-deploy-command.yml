@@ -15,7 +15,6 @@ jobs:
       PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
       BRANCH: ${{ github.event.client_payload.data.text }}
       CHANNEL_ID: ${{ github.event.client_payload.data.channel_id }}
-      RESPONSE_URL: ${{  github.event.client_payload.data.response_url }}
       SLACK_WEBHOOK: ${{  secrets.SLACK_WEBHOOK }}
       USER_NAME: ${{  github.event.client_payload.data.user_name }}
 
