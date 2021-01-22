@@ -138,11 +138,6 @@ jobs:
       #
       # Request deployment from RunDeck
       #
-      - name: Slack message (deploying the build)
-        uses: muinmomin/webhook-action@v1.0.0
-        with:
-          url: ${{ env.SLACK_WEBHOOK }}
-          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "Requesting a deployment on RunDeck going to ${{steps.find-target.outputs.result}}", "color": "#78BE20" }] }'
 
       - name: Build branch
         id: pipeline-deploy
@@ -166,8 +161,4 @@ jobs:
       #
       # End with a success message
       #
-      - name: Slack message (deploying the build)
-        uses: muinmomin/webhook-action@v1.0.0
-        with:
-          url: ${{ env.SLACK_WEBHOOK }}
-          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "RunDeck is deploying. @${{ env.USER_NAME }} You can track progress here ${{steps.pipeline-deploy.outputs.result}}", "color": "#78BE20" }] }'
+  
