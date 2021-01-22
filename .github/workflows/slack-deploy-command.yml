@@ -118,7 +118,7 @@ jobs:
           data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "Uploading the build to RunDeck", "color": "#78BE20" }] }'
 
       - name: Build branch
-        run: make ondemand.upload
+        run: echo stub
         env:
           ENV: ${{steps.find-target.outputs.result}}
           RD_URL: ${{ secrets.RD_URL }}
