@@ -17,6 +17,11 @@ jobs:
       CHANNEL_ID: ${{ github.event.client_payload.data.channel_id }}
       SLACK_WEBHOOK: ${{  secrets.SLACK_WEBHOOK }}
       USER_NAME: ${{  github.event.client_payload.data.user_name }}
+      RD_URL: ${{ secrets.RD_URL }}
+      RD_USER: ${{ secrets.RD_USER }}
+      RD_PASSWORD: ${{ secrets.RD_PASSWORD }}
+      RD_AUTH_PROMPT: false
+      RD_COLOR: 0
 
     steps:
       #
@@ -64,6 +69,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ env.BRANCH }}
+          fetch-depth: 0 # Need all the tags for versioning
 
       - name: Slack message (failed to checkout the branch)
         if: ${{ failure() }}
@@ -109,6 +115,14 @@ jobs:
 
 
       #
+      # Prepare RD communication
+      #
+      - name: Insert SSH certificate
+      run: |
+        mkdir -p ~/.ssh
+        echo ${{ env.IDM_KEY }} > ~/.ssh
+
+      #
       # Upload the build
       #
       - name: Slack message (uploading the build)
@@ -117,15 +131,8 @@ jobs:
           url: ${{ env.SLACK_WEBHOOK }}
           data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "Uploading the build to RunDeck", "color": "#78BE20" }] }'
 
-      - name: Build branch
-        run: echo stub
-        env:
-          ENV: ${{steps.find-target.outputs.result}}
-          RD_URL: ${{ secrets.RD_URL }}
-          RD_USER: ${{ secrets.RD_USER }}
-          RD_PASSWORD: ${{ secrets.RD_PASSWORD }}
-          RD_AUTH_PROMPT: false
-          RD_COLOR: 0
+      - name: Upload build
+        run: make ondemand.upload
 
       - name: Slack message (failed to build the branch)
         if: ${{ failure() }}
@@ -138,17 +145,17 @@ jobs:
       #
       # Request deployment from RunDeck
       #
+      - name: Slack message (deploying the build)
+        uses: muinmomin/webhook-action@v1.0.0
+        with:
+          url: ${{ env.SLACK_WEBHOOK }}
+          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "Requesting a deployment on RunDeck going to ${{steps.find-target.outputs.result}}", "color": "#78BE20" }] }'
 
       - name: Build branch
         id: pipeline-deploy
-        run: echo stub
+        run: make ondemand.pipeline-deploy
         env:
           ENV: ${{steps.find-target.outputs.result}}
-          RD_URL: ${{ secrets.RD_URL }}
-          RD_USER: ${{ secrets.RD_USER }}
-          RD_PASSWORD: ${{ secrets.RD_PASSWORD }}
-          RD_AUTH_PROMPT: false
-          RD_COLOR: 0
 
       - name: Slack message (failed to deploy)
         if: ${{ failure() }}
@@ -161,4 +168,8 @@ jobs:
       #
       # End with a success message
       #
-  
+      - name: Slack message (End message)
+        uses: muinmomin/webhook-action@v1.0.0
+        with:
+          url: ${{ env.SLACK_WEBHOOK }}
+          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "RunDeck is deploying. @${{ env.USER_NAME }} You can track progress here ${{steps.pipeline-deploy.outputs.result}}", "color": "#78BE20" }] }'
