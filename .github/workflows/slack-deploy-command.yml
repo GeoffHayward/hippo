@@ -51,7 +51,7 @@ jobs:
         if: ${{ failure() }}
         uses: muinmomin/webhook-action@v1.0.0
         with:
-          url: ${{ env.RESPONSE_URL }}
+          url: ${{ env.SLACK_WEBHOOK }}
           data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Failed!", "attachments": [{ "text" : "Cannot find the target server. Are you running the command from the correct channel?",  "color": "#DA291C" }] }'
 
       - name: Print Identify target for debugging
@@ -70,7 +70,7 @@ jobs:
         if: ${{ failure() }}
         uses: muinmomin/webhook-action@v1.0.0
         with:
-          url: ${{ env.RESPONSE_URL }}
+          url: ${{ env.SLACK_WEBHOOK }}
           data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Failed!", "attachments": [{ "text" : "Cannot find the branch named ${{ env.BRANCH }}",  "color": "#DA291C" }] }'
 
 
@@ -80,7 +80,7 @@ jobs:
       - name: Slack message (building the branch)
         uses: muinmomin/webhook-action@v1.0.0
         with:
-          url: ${{ env.RESPONSE_URL }}
+          url: ${{ env.SLACK_WEBHOOK }}
           data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "Building the branch (${{ env.BRANCH }})", "color": "#78BE20" }] }'
 
       - name: Set up JDK 1.8
@@ -105,7 +105,7 @@ jobs:
         if: ${{ failure() }}
         uses: muinmomin/webhook-action@v1.0.0
         with:
-          url: ${{ env.RESPONSE_URL }}
+          url: ${{ env.SLACK_WEBHOOK }}
           data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Failed!", "attachments": [{ "text" : "Failed to build the branch named ${{ env.BRANCH }}",  "color": "#DA291C" }] }'
 
 
@@ -115,7 +115,7 @@ jobs:
       - name: Slack message (uploading the build)
         uses: muinmomin/webhook-action@v1.0.0
         with:
-          url: ${{ env.RESPONSE_URL }}
+          url: ${{ env.SLACK_WEBHOOK }}
           data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "Uploading the build to RunDeck", "color": "#78BE20" }] }'
 
       - name: Build branch
@@ -125,7 +125,7 @@ jobs:
         if: ${{ failure() }}
         uses: muinmomin/webhook-action@v1.0.0
         with:
-          url: ${{ env.RESPONSE_URL }}
+          url: ${{ env.SLACK_WEBHOOK }}
           data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Failed!", "attachments": [{ "text" : "Failed to upload the build",  "color": "#DA291C" }] }'
 
 
@@ -135,7 +135,7 @@ jobs:
       - name: Slack message (deploying the build)
         uses: muinmomin/webhook-action@v1.0.0
         with:
-          url: ${{ env.RESPONSE_URL }}
+          url: ${{ env.SLACK_WEBHOOK }}
           data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "Requesting a deployment on RunDeck going to ${{steps.find-target.outputs.result}}", "color": "#78BE20" }] }'
 
       - name: Build branch
@@ -153,7 +153,7 @@ jobs:
         if: ${{ failure() }}
         uses: muinmomin/webhook-action@v1.0.0
         with:
-          url: ${{ env.RESPONSE_URL }}
+          url: ${{ env.SLACK_WEBHOOK }}
           data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Failed!", "attachments": [{ "text" : "RunDeck failed to start a deployment",  "color": "#DA291C" }] }'
 
 
@@ -163,5 +163,5 @@ jobs:
       - name: Slack message (deploying the build)
         uses: muinmomin/webhook-action@v1.0.0
         with:
-          url: ${{ env.RESPONSE_URL }}
+          url: ${{ env.SLACK_WEBHOOK }}
           data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "RunDeck is deploying. @${{ env.USER_NAME }} You can track progress here ${{steps.pipeline-deploy.outputs.result}}", "color": "#78BE20" }] }'
