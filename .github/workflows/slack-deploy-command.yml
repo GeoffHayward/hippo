@@ -118,9 +118,9 @@ jobs:
       # Prepare RD communication
       #
       - name: Insert SSH certificate
-      run: |
-        mkdir -p ~/.ssh
-        echo ${{ env.IDM_KEY }} > ~/.ssh
+        run: |
+          mkdir -p ~/.ssh
+          echo ${{ env.IDM_KEY }} > ~/.ssh
 
       #
       # Upload the build
