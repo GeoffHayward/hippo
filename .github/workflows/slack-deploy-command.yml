@@ -146,7 +146,7 @@ jobs:
 
       - name: Build branch
         id: pipeline-deploy
-        run: make ondemand.pipeline-deploy
+        run: echo stub
         env:
           ENV: ${{steps.find-target.outputs.result}}
           RD_URL: ${{ secrets.RD_URL }}
