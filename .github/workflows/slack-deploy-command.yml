@@ -124,7 +124,6 @@ jobs:
           mkdir ~/.ssh
           echo ${{ env.IDM_KEY }} > ~/.ssh/id_rsa
           chmod 400 ~/.ssh/id_rsa
-          ssh-keyscan -H -t rsa ${{ env.RD_FTP }} >> ~/.ssh/known_hosts
 
       #
       # Upload the build
