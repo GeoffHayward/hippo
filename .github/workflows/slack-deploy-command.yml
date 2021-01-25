@@ -118,12 +118,14 @@ jobs:
       # Prepare RD communication
       #
       - name: Configure SSH certificates
-        env:
-          RD_FTP: ${{ secrets.RD_FTP }}
         run: |
           mkdir ~/.ssh
-          echo ${{ env.IDM_KEY }} > ~/.ssh/id_rsa
+          echo ${{ secrets.IDM_KEY }} > ~/.ssh/id_rsa
+          echo ${{ secrets.IDM_PUB }} > ~/.ssh/id_rsa.pub
           chmod 400 ~/.ssh/id_rsa
+          touch ~/.ssh/known_hosts
+          ssh-keygen -R ${{ secrets.RD_FTP }}
+          ssh-keyscan ${{ secrets.RD_FTP }} >> ~/.ssh/known_hosts
 
       #
       # Upload the build
