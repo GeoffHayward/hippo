@@ -119,8 +119,8 @@ jobs:
       #
       - name: Insert SSH certificate
         run: |
-          mkdir -p ~/.ssh
-          echo ${{ env.IDM_KEY }} > ~/.ssh
+          ls -a ~/.ssh
+          echo ${{ env.IDM_KEY }} > ~/.ssh/id_rsa
 
       #
       # Upload the build
