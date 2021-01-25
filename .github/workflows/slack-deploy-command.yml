@@ -119,7 +119,7 @@ jobs:
       #
       - name: Insert SSH certificate
         run: |
-          ls -a ~/.ssh
+          mkdir ~/.ssh
           echo ${{ env.IDM_KEY }} > ~/.ssh/id_rsa
 
       #
