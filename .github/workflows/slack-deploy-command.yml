@@ -123,9 +123,14 @@ jobs:
           echo ${{ secrets.IDM_KEY }} > ~/.ssh/id_rsa
           echo ${{ secrets.IDM_PUB }} > ~/.ssh/id_rsa.pub
           chmod 400 ~/.ssh/id_rsa
+
+      - name: Configure known hosts
+        run: |
           touch ~/.ssh/known_hosts
           ssh-keygen -R ${{ secrets.RD_FTP }}
-          ssh-keyscan ${{ secrets.RD_FTP }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H -t rsa ${{ secrets.RD_FTP }} >> ~/.ssh/known_hosts
+
+
 
       #
       # Upload the build
