@@ -100,6 +100,11 @@ jobs:
           key: ${{ runner.os }}-m2-slack-deploy-command-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2-slack-deploy-command
 
+      - name: Build branch
+        run: make clean build
+        env:
+          HIPPO_MAVEN_PASSWORD: ${{ secrets.HIPPO_MAVEN_PASSWORD }}
+          HIPPO_MAVEN_USERNAME: ${{ secrets.HIPPO_MAVEN_USERNAME }}
 
       - name: Slack message (failed to build the branch)
         if: ${{ failure() }}
@@ -115,30 +120,10 @@ jobs:
       - name: Configure SSH certificates
         run: |
           mkdir ~/.ssh
-
-      #
-      # Prepare RD communication
-      #
-      - name: Configure SSH certificates
-        run: |
-          echo ${{ secrets.IDM_KEY }} > ~/.ssh/id_rsa
-          
-      #
-      # Prepare RD communication
-      #
-      - name: Configure SSH certificates
-        run: |
-          echo ${{ secrets.IDM_PUB }} > ~/.ssh/id_rsa.pub
+          echo "${{ secrets.IDM_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.IDM_PUB }}" > ~/.ssh/id_rsa.pub
           sudo chown -R $USER:$USER ~/.ssh/id_rsa
           sudo chown -R $USER:$USER ~/.ssh/id_rsa.pub
-          
-          
-      #
-      # Prepare RD communication
-      #
-      - name: Configure SSH certificates
-        run: |
-          sudo chown -R $USER:$USER ~/.ssh/id_rsa
 
       - name: Configure known hosts
         run: |
