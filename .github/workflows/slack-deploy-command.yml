@@ -123,7 +123,7 @@ jobs:
         run: |
           echo ${{ secrets.IDM_KEY }} > ~/.ssh/id_rsa
           
-                #
+      #
       # Prepare RD communication
       #
       - name: Configure SSH certificates
@@ -133,7 +133,7 @@ jobs:
           sudo chown -R $USER:$USER ~/.ssh/id_rsa.pub
           
           
-                #
+      #
       # Prepare RD communication
       #
       - name: Configure SSH certificates
