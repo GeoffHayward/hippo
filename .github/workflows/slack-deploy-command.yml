@@ -17,7 +17,7 @@ jobs:
       CHANNEL_ID: ${{ github.event.client_payload.data.channel_id }}
       SLACK_WEBHOOK: ${{  secrets.SLACK_WEBHOOK }}
       USER_NAME: ${{  github.event.client_payload.data.user_name }}
-      RD_URL: ${{ secrets.RD_URL }}
+      RD_URL: ${{ secrets.RD_API }}
       RD_USER: ${{ secrets.RD_USER }}
       RD_PASSWORD: ${{ secrets.RD_PASSWORD }}
       RD_AUTH_PROMPT: false
@@ -117,10 +117,11 @@ jobs:
       #
       # Prepare RD communication
       #
-      - name: Insert SSH certificate
+      - name: Configure SSH certificates
         run: |
           mkdir ~/.ssh
           echo ${{ env.IDM_KEY }} > ~/.ssh/id_rsa
+          ssh-keyscan -H -t rsa ${{ secrets.RD_FTP }} >> ~/.ssh/known_hosts
 
       #
       # Upload the build
@@ -145,13 +146,13 @@ jobs:
       #
       # Request deployment from RunDeck
       #
-      - name: Slack message (deploying the build)
+      - name: Slack message (requesting deployment)
         uses: muinmomin/webhook-action@v1.0.0
         with:
           url: ${{ env.SLACK_WEBHOOK }}
           data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "Requesting a deployment on RunDeck going to ${{steps.find-target.outputs.result}}", "color": "#78BE20" }] }'
 
-      - name: Build branch
+      - name: Deploy request
         id: pipeline-deploy
         run: make ondemand.pipeline-deploy
         env:
