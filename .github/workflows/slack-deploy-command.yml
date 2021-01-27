@@ -57,7 +57,7 @@ jobs:
         uses: muinmomin/webhook-action@v1.0.0
         with:
           url: ${{ env.SLACK_WEBHOOK }}
-          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Failed!", "attachments": [{ "text" : "Cannot find the target server. Are you running the command from the correct channel?",  "color": "#DA291C" }] }'
+          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "Cannot find the target server. Are you running the command from the correct channel?",  "color": "#DA291C" }] }'
 
       - name: Print Identify target for debugging
         run: |
@@ -77,7 +77,7 @@ jobs:
         uses: muinmomin/webhook-action@v1.0.0
         with:
           url: ${{ env.SLACK_WEBHOOK }}
-          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Failed!", "attachments": [{ "text" : "Cannot find the branch named ${{ env.BRANCH }}",  "color": "#DA291C" }] }'
+          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "Cannot find the branch named ${{ env.BRANCH }}",  "color": "#DA291C" }] }'
 
 
       #
@@ -112,7 +112,7 @@ jobs:
         uses: muinmomin/webhook-action@v1.0.0
         with:
           url: ${{ env.SLACK_WEBHOOK }}
-          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Failed!", "attachments": [{ "text" : "Failed to build the branch named ${{ env.BRANCH }}",  "color": "#DA291C" }] }'
+          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "Failed to build the branch named ${{ env.BRANCH }}",  "color": "#DA291C" }] }'
 
 
       #
@@ -149,7 +149,7 @@ jobs:
         uses: muinmomin/webhook-action@v1.0.0
         with:
           url: ${{ env.SLACK_WEBHOOK }}
-          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Failed!", "attachments": [{ "text" : "Failed to upload the build",  "color": "#DA291C" }] }'
+          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "Failed to upload the build",  "color": "#DA291C" }] }'
 
 
       #
@@ -174,7 +174,7 @@ jobs:
         uses: muinmomin/webhook-action@v1.0.0
         with:
           url: ${{ env.SLACK_WEBHOOK }}
-          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Failed!", "attachments": [{ "text" : "RunDeck failed to start a deployment",  "color": "#DA291C" }] }'
+          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "RunDeck failed to start a deployment",  "color": "#DA291C" }] }'
 
 
       #
@@ -188,8 +188,8 @@ jobs:
 
 
       - name: Slack message (failed end message)
-        if: ${{ failure() }}
+        if: ${{ always() }}
         uses: muinmomin/webhook-action@v1.0.0
         with:
           url: ${{ env.SLACK_WEBHOOK }}
-          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Failed!", "attachments": [{ "text" : "End of communication. The logs are here https://github.com/${{ $GITHUB_REPOSITORY }}/actions/runs/${{ GITHUB_RUN_ID }}",  "color": "#DA291C" }] }'
+          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Ended", "attachments": [{ "text" : "End of communication. The logs are here https://github.com/${{ $env.GITHUB_REPOSITORY }}/actions/runs/${{ env.GITHUB_RUN_ID }}",  "color": "#005EB8" }] }'
