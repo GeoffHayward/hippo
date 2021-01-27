@@ -192,4 +192,4 @@ jobs:
         uses: muinmomin/webhook-action@v1.0.0
         with:
           url: ${{ env.SLACK_WEBHOOK }}
-          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Ended", "attachments": [{ "text" : "End of communication. The logs are here https://github.com/${{ $env.GITHUB_REPOSITORY }}/actions/runs/${{ env.GITHUB_RUN_ID }}",  "color": "#005EB8" }] }'
+          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Ended", "attachments": [{ "text" : "End of communication. The logs are here https://github.com/${{ env.GITHUB_REPOSITORY }}/actions/runs/${{ env.GITHUB_RUN_ID }}",  "color": "#005EB8" }] }'
