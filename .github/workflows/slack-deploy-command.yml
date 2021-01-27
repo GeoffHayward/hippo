@@ -191,7 +191,7 @@ jobs:
         if: ${{ always() }}
         uses: muinmomin/webhook-action@v1.0.0
         env:
-          GITHUB_WORKFLOW_URL: "https://github.com/${{ GITHUB_REPOSITORY }}/actions/runs/${{ GITHUB_RUN_ID }}"
+          GITHUB_WORKFLOW_URL: "https://github.com/${{ env.GITHUB_REPOSITORY }}/actions/runs/${{ env.GITHUB_RUN_ID }}"
         with:
           url: ${{ env.SLACK_WEBHOOK }}
           data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Finished", "attachments": [{ "text" : "End of communication. The logs are here ${{ env.GITHUB_WORKFLOW_URL }}",  "color": "#005EB8" }] }'
