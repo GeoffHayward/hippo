@@ -165,7 +165,7 @@ jobs:
         id: pipeline-deploy
         run: |
           make ondemand.pipeline-deploy > pipeline-deploy-output.txt
-          echo "::set-output name=PIPELINE-DEPLOY_URL::"$(cat pipeline-deploy-output.txt | grep -Po "(?<=<)[^>]+"))
+          echo "::set-output name=PIPELINE-DEPLOY_URL::"$(cat pipeline-deploy-output.txt | grep -Po "(?<=<)[^>]+")
         env:
           ENV: ${{steps.find-target.outputs.result}}
 
@@ -190,6 +190,8 @@ jobs:
       - name: Slack message (failed end message)
         if: ${{ always() }}
         uses: muinmomin/webhook-action@v1.0.0
+        env:
+          GITHUB_WORKFLOW_URL: "https://github.com/{{ $GITHUB_REPOSITORY }}/actions/runs/${{ GITHUB_RUN_ID }}"
         with:
           url: ${{ env.SLACK_WEBHOOK }}
-          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Ended", "attachments": [{ "text" : "End of communication. The logs are here https://github.com/${{ env.GITHUB_REPOSITORY }}/actions/runs/${{ env.GITHUB_RUN_ID }}",  "color": "#005EB8" }] }'
+          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Finished", "attachments": [{ "text" : "End of communication. The logs are here ${{ env.GITHUB_WORKFLOW_URL }}",  "color": "#005EB8" }] }'
