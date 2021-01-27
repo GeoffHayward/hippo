@@ -180,8 +180,16 @@ jobs:
       #
       # End with a success message
       #
-      - name: Slack message (End message)
+      - name: Slack message (end message)
         uses: muinmomin/webhook-action@v1.0.0
         with:
           url: ${{ env.SLACK_WEBHOOK }}
           data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "RunDeck is deploying. <@${{ env.USER_NAME }}> You can track progress here ${{steps.pipeline-deploy.outputs.PIPELINE-DEPLOY_URL}}", "color": "#78BE20" }] }'
+
+
+      - name: Slack message (failed end message)
+        if: ${{ failure() }}
+        uses: muinmomin/webhook-action@v1.0.0
+        with:
+          url: ${{ env.SLACK_WEBHOOK }}
+          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline Failed!", "attachments": [{ "text" : "End of communication. The logs are here https://github.com/${{ $GITHUB_REPOSITORY }}/actions/runs/${{ GITHUB_RUN_ID }}",  "color": "#DA291C" }] }'
