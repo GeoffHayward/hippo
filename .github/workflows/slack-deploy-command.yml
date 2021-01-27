@@ -165,7 +165,7 @@ jobs:
         id: pipeline-deploy
         run: |
           make ondemand.pipeline-deploy > pipeline-deploy-output.txt
-          echo '::set-output name=PIPELINE-DEPLOY_URL::$(cat pipeline-deploy-output.txt | grep -Po "(?<=<)[^>]+"))'
+          echo "::set-output name=PIPELINE-DEPLOY_URL::"$(cat pipeline-deploy-output.txt | grep -Po "(?<=<)[^>]+"))
         env:
           ENV: ${{steps.find-target.outputs.result}}
 
