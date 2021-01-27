@@ -163,7 +163,9 @@ jobs:
 
       - name: Deploy request
         id: pipeline-deploy
-        run: make ondemand.pipeline-deploy
+        run: |
+          make ondemand.pipeline-deploy > pipeline-deploy-output.txt
+          echo '::set-output name=PIPELINE-DEPLOY_URL::$(cat pipeline-deploy-output.txt | grep -Po "(?<=<)[^>]+"))'
         env:
           ENV: ${{steps.find-target.outputs.result}}
 
@@ -182,4 +184,4 @@ jobs:
         uses: muinmomin/webhook-action@v1.0.0
         with:
           url: ${{ env.SLACK_WEBHOOK }}
-          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "RunDeck is deploying. @${{ env.USER_NAME }} You can track progress here ${{steps.pipeline-deploy.outputs.result}}", "color": "#78BE20" }] }'
+          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "RunDeck is deploying. <@${{ env.USER_NAME }}> You can track progress here ${{steps.pipeline-deploy.outputs.PIPELINE-DEPLOY_URL}}", "color": "#78BE20" }] }'
