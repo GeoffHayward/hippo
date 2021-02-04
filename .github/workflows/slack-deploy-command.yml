@@ -10,26 +10,15 @@ jobs:
   build:
     name: Build Commit
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     env:
       PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
       BRANCH: ${{ github.event.client_payload.data.text }}
       CHANNEL_ID: ${{ github.event.client_payload.data.channel_id }}
       SLACK_WEBHOOK: ${{  secrets.SLACK_WEBHOOK }}
-      USER_NAME: ${{  github.event.client_payload.data.user_name }}
-      RD_URL: ${{ secrets.RD_API }}
-      RD_USER: ${{ secrets.RD_USER }}
-      RD_PASSWORD: ${{ secrets.RD_PASSWORD }}
-      RD_AUTH_PROMPT: false
-      RD_COLOR: 0
+      USER_ID: ${{  github.event.client_payload.data.user_id }}
 
     steps:
-      #
-      # Debugging info
-      #
-      - name: Print payload for debugging
-        run: |
-          echo "PAYLOAD_CONTEXT: $PAYLOAD_CONTEXT"
 
       #
       # Identify target server
@@ -51,7 +40,6 @@ jobs:
             } else {
               return environments[`${process.env.CHANNEL_ID}`]
             }
-
       - name: Slack message (failed to identify the target)
         if: ${{ failure() }}
         uses: muinmomin/webhook-action@v1.0.0
@@ -60,8 +48,7 @@ jobs:
           data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "Cannot find the target server. Are you running the command from the correct channel?",  "color": "#DA291C" }] }'
 
       - name: Print Identify target for debugging
-        run: |
-          echo ${{steps.find-target.outputs.result}}
+        run: echo ${{steps.find-target.outputs.result}}
 
       #
       # Checkout the branch
@@ -94,13 +81,40 @@ jobs:
         with:
           java-version: 1.8
 
+      - name: Get cache key helper values
+        uses: actions/github-script@v3
+        id: cache-key-helper
+        with:
+          result-encoding: string
+          script: |
+            return JSON.stringify({
+              "year" : new Date().getFullYear(),
+              "rotation" : new Date().getTimezoneOffset()
+            })
       - name: Setup cache (Maven packages)
         uses: actions/cache@v2
+        env:
+          YEAR: ${{ fromJSON(steps.cache-key-helper.outputs.result).year }}
+          ROTATION: ${{ fromJSON(steps.cache-key-helper.outputs.result).rotation }}
         with:
           path: ~/.m2/repository
-          key: ${{ runner.os }}-m2-slack-deploy-command-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2-slack-deploy-command
-
+          key: ${{ runner.os }}-maven-nhs-digital-${{ env.YEAR }}-${{ env.ROTATION }}
+          restore-keys: |
+            ${{ runner.os }}-maven-nhs-digital-${{ env.YEAR }}-
+            ${{ runner.os }}-maven-nhs-digital-
+            ${{ runner.os }}-maven-nhs-
+      - name: Setup cache (Node.js packages)
+        uses: actions/cache@v2
+        env:
+          YEAR: ${{ fromJSON(steps.cache-key-helper.outputs.result).year }}
+          ROTATION: ${{ fromJSON(steps.cache-key-helper.outputs.result).rotation }}
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-nhs-digital-${{ env.YEAR }}-${{ env.ROTATION }}
+          restore-keys: |
+            ${{ runner.os }}-node-nhs-digital-${{ env.YEAR }}-
+            ${{ runner.os }}-node-nhs-digital-
+            ${{ runner.os }}-node-nhs-
       - name: Build branch
         run: make clean build
         env:
@@ -125,13 +139,11 @@ jobs:
           echo "${{ secrets.IDM_PUB }}" > ~/.ssh/id_rsa.pub
           chmod 400 ~/.ssh/id_rsa
           chmod 400 ~/.ssh/id_rsa.pub
-
       - name: Configure known hosts
         run: |
           touch ~/.ssh/known_hosts
           ssh-keygen -R ${{ secrets.RD_FTP }}
           ssh-keyscan -H -t rsa ${{ secrets.RD_FTP }} >> ~/.ssh/known_hosts
-
       #
       # Upload the build
       #
@@ -165,9 +177,12 @@ jobs:
         id: pipeline-deploy
         run: |
           make ondemand.pipeline-deploy > pipeline-deploy-output.txt
-          echo "::set-output name=PIPELINE-DEPLOY_URL::"$(cat pipeline-deploy-output.txt | grep -Po "(?<=<)[^>]+")
+          echo "::set-output name=PIPELINE_DEPLOY_URL::"$(cat pipeline-deploy-output.txt | grep -Po "(?<=<)[^>]+")
         env:
           ENV: ${{steps.find-target.outputs.result}}
+          RD_URL: ${{ secrets.RD_URL }}
+          RD_USER: ${{ secrets.RD_USER }}
+          RD_PASSWORD: ${{ secrets.RD_PASSWORD }}
 
       - name: Slack message (failed to deploy)
         if: ${{ failure() }}
@@ -184,7 +199,7 @@ jobs:
         uses: muinmomin/webhook-action@v1.0.0
         with:
           url: ${{ env.SLACK_WEBHOOK }}
-          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "RunDeck is deploying. <@${{ env.USER_NAME }}> You can track progress here ${{steps.pipeline-deploy.outputs.PIPELINE-DEPLOY_URL}}", "color": "#78BE20" }] }'
+          data: '{ "channel": "${{ env.CHANNEL_ID }}", "text": "Pipeline progress...", "attachments": [{ "text" : "RunDeck is deploying. <@${{ env.USER_ID }}> You can track progress here ${{steps.pipeline-deploy.outputs.PIPELINE_DEPLOY_URL}}", "color": "#78BE20" }] }'
 
 
       - name: Slack message (failed end message)
