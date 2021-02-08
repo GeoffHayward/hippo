@@ -1,0 +1,32 @@
+name: Slack verify
+
+on:
+  repository_dispatch:
+    types:
+      - verify
+
+jobs:
+
+  build:
+    name: Build Commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
+
+    steps:
+
+      #
+      # Identify target server
+      #
+      - name: Identify target
+        uses: actions/github-script@v3
+        id: find-target
+        env:
+          BODY: ${{ github.event.client_payload.body }}
+          TIMESTAMP: ${{ github.event.client_payload.headers['X-Slack-Request-Timestamp'] }}
+          SIGNATURE: ${{ github.event.client_payload.headers['X-Slack-Signature'] }}
+          SIGNING_SECRET: ${{ secrets.SIGNING_SECRET }}
+        with:
+          result-encoding: string
+          script: return "todo"
