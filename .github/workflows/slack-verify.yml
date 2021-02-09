@@ -38,5 +38,6 @@ jobs:
                 const hash = require('crypto').createHmac('sha256', `${process.env.SIGNING_SECRET}`).update(base).digest("hex")
                 if(`${process.env.SIGNATURE}` !== `v0=${hash}) {
                   core.setFailed("Request integrity check failed.")
-                }
+                } else {
+                  return hash
             }
