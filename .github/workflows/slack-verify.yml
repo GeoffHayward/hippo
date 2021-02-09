@@ -43,6 +43,7 @@ jobs:
             
   build:
     name: Build Commit
+    needs: integrity
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
