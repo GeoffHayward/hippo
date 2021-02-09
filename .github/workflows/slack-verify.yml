@@ -23,9 +23,10 @@ jobs:
         uses: actions/github-script@v3
         id: find-target
         env:
-          BODY: ${{ github.event.client_payload.body }}
-          TIMESTAMP: ${{ github.event.client_payload.headers['X-Slack-Request-Timestamp'] }}
-          SIGNATURE: ${{ github.event.client_payload.headers['X-Slack-Signature'] }}
+          AGENT: ${{ github.event.client_payload.integrity.agent }}
+          BODY: ${{ github.event.client_payload.integrity.body }}
+          TIMESTAMP: ${{ github.event.client_payload.integrity.timestamp }}
+          SIGNATURE: ${{ github.event.client_payload.integrity.signature }}
           SIGNING_SECRET: ${{ secrets.SIGNING_SECRET }}
         with:
           result-encoding: string
