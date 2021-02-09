@@ -19,9 +19,9 @@ jobs:
       #
       # Identify target server
       #
-      - name: Identify target
+      - name: Validate Origin
         uses: actions/github-script@v3
-        id: find-target
+        id: validate-origin
         env:
           AGENT: ${{ github.event.client_payload.integrity.agent }}
           BODY: ${{ github.event.client_payload.integrity.body }}
@@ -32,7 +32,12 @@ jobs:
           result-encoding: string
           script: |
             if(!`${process.env.AGENT}`.startsWith("Slackbot")){
-              core.setFailed("User agent mismatch.")
+                core.setFailed("User agent mismatch.")
             } else {
-              return "todo"
+                const base = `v0:${process.env.TIMESTAMP}:${process.env.BODY}`
+                const hash = crypto.createHmac('sha256', `:${process.env.SIGNING_SECRET}`).update(base).digest("hex")
+                return hash
             }
+            
+      - name: Print Hex
+        run: echo ${{steps.validate-origin.outputs.result}}
