@@ -7,8 +7,8 @@ on:
 
 jobs:
 
-  build:
-    name: Build Commit
+  integrity:
+    name: Integrity Check
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
@@ -40,3 +40,18 @@ jobs:
                   core.setFailed("Request integrity failed.")
                 } 
             }
+            
+  build:
+    name: Build Commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
+
+    steps:
+
+      #
+      # Identify target server
+      #
+      - name: Build Dummy
+        run: echo "hello"
