@@ -30,4 +30,9 @@ jobs:
           SIGNING_SECRET: ${{ secrets.SIGNING_SECRET }}
         with:
           result-encoding: string
-          script: return "todo"
+          script: |
+            if(!`${process.env.AGENT}`startsWith("Slackbot")){
+              core.setFailed("User agent mismatch.")
+            } else {
+              return "todo"
+            }
