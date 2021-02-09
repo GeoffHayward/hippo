@@ -31,7 +31,7 @@ jobs:
         with:
           result-encoding: string
           script: |
-            if(!`${process.env.AGENT}`startsWith("Slackbot")){
+            if(!`${process.env.AGENT}`.startsWith("Slackbot")){
               core.setFailed("User agent mismatch.")
             } else {
               return "todo"
