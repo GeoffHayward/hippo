@@ -27,7 +27,7 @@ jobs:
           BODY: ${{ github.event.client_payload.integrity.body }}
           TIMESTAMP: ${{ github.event.client_payload.integrity.timestamp }}
           SIGNATURE: ${{ github.event.client_payload.integrity.signature }}
-          SIGNING_SECRET: ${{ secrets.SIGNING_SECRET }}
+          SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
         with:
           result-encoding: string
           script: |
