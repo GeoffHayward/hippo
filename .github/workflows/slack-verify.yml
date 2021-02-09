@@ -35,7 +35,7 @@ jobs:
                 core.setFailed("User agent mismatch.")
             } else {
                 const base = `v0:${process.env.TIMESTAMP}:${process.env.BODY}`
-                const hash = crypto.createHmac('sha256', `:${process.env.SIGNING_SECRET}`).update(base).digest("hex")
+                const hash = require('crypto').createHmac('sha256', `:${process.env.SIGNING_SECRET}`).update(base).digest("hex")
                 return hash
             }
             
